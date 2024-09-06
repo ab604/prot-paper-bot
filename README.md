@@ -63,14 +63,25 @@ I followed the `phypapers`
 search terms:
 `immunopeptidom*[tiab]`,`hdx-ms[tiab]`,`immunopeptidom*[tiab] AND neoantigen*[tiab]`.
 
-<em> 1. Go here: <http://www.ncbi.nlm.nih.gov/pubmed/> 2. Type in your
-favourite search terms remembering that wildcards are useful
-(e.g. `phylogen*` will match anything starting with `phylogen`, and
-logical operators can be really good, e.g. you can have
-`phylogen* OR raxml OR splitstree`. 3. Click `search` 4. Click the
-`Create RSS` link just below the search box 5. Name is something
-sensible 6. Set `Number of items to be displayed` to 100 7. Click
-`Create RSS` 8. Record the RSS URL somewhere </em>
+<em>
+
+1\. Go here: <http://www.ncbi.nlm.nih.gov/pubmed/>
+
+2\. Type in your favourite search terms remembering that wildcards are
+useful (e.g. `phylogen*` will match anything starting with `phylogen`,
+and logical operators can be really good, e.g. you can have
+`phylogen* OR raxml OR splitstree`.
+
+3\. Click `search`
+
+4\. Click the `Create RSS` link just below the search box
+
+5\. Name is something sensible
+
+6\. Set `Number of items to be displayed` to 100 7. Click `Create RSS`
+8. Record the RSS URL somewhere
+
+</em>
 
 The somewhere bit for me is a character vector in R in `bot.R`.
 
