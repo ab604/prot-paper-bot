@@ -59,9 +59,7 @@ bioRxiv until I got something reasonable.
 ### PubMed
 
 I followed the `phypapers`
-[readme](https://github.com/roblanf/phypapers) again and ended up with
-search terms:
-`immunopeptidom*[tiab]`,`hdx-ms[tiab]`,`immunopeptidom*[tiab] AND neoantigen*[tiab]`.
+[readme](https://github.com/roblanf/phypapers) again:
 
 <em>
 
@@ -84,6 +82,12 @@ and logical operators can be really good, e.g. you can have
 </em>
 
 The somewhere bit for me is a character vector in R in `bot.R`.
+
+After a bit of trial and error I ended up using search terms with flags
+for the title and abstract:
+
+`immunopeptidom*[tiab]`, `hdx-ms[tiab]`,
+`immunopeptidom*[tiab] AND neoantigen*[tiab]`.
 
 ### bioRxiv
 
