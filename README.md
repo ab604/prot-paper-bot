@@ -1,6 +1,8 @@
 
 Last Updated on 2024-09-06
 
+<img src="hlas.png" width="327" />
+
 # Prot papers bot
 
 This is the bot for @prot_papers.bsky.social that was inspired and
