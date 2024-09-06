@@ -43,7 +43,7 @@ jobs:
 
         # after all the preparation, it's time to run the bot
       - name: "Bot - Run"
-        run: Rscript 'bot.r'
+        run: Rscript 'bot.R'
         env:
           ATR_PW: ${{ secrets.ATR_PW }} # to authenticat, store your app pw as a secret
           
