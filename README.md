@@ -171,6 +171,9 @@ auth(user = "protpapers.bsky.social",
 You can always run `auth()` again and created a new password and token
 in the future if you are have problems.
 
+**Make sure your `.gitignore` is set not to upload files with passwords
+or other sensitive information e.g. your `.Renivron` file.**
+
 You can test the `bot.R` script first without deploying `bot.yml` on
 Github.
 
