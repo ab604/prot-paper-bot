@@ -1,7 +1,7 @@
 name: "Update Bot"
 on:
   schedule:
-    - cron: '* 16 * * *' # run the bot once a day at 1600 UTC
+    - cron: '0 3 * * *' # run the bot once a day at 0300 UTC
   push: # also run the action when something on a new commit
     branches:
       - main
