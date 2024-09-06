@@ -1,9 +1,9 @@
 
 Last Updated on 2024-09-06
 
-<img src="hlas.png" width="327" />
-
 # Prot papers bot
+
+<img src="hlas.png" width="327" />
 
 This is the bot for @prot_papers.bsky.social that was inspired and
 developed from bots created by https://github.com/roblanf/phypapers and
