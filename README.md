@@ -20,7 +20,8 @@ make it better.
 
 ## 1. Set-up Bluesky
 
-Follow these instructions from the `phypapers` readme:
+Follow these instructions from the `phypapers`
+[readme](https://github.com/roblanf/phypapers):
 
 <em> “Obviously you need an account to post to. This part gets you set
 up on Bluesky, whether you have an existing personal account or not.
@@ -57,12 +58,140 @@ bioRxiv until I got something reasonable.
 
 ### PubMed
 
+I followed the `phypapers`
+[readme](https://github.com/roblanf/phypapers) again and ended up with
+search terms:
+`immunopeptidom*[tiab]`,`hdx-ms[tiab]`,`immunopeptidom*[tiab] AND neoantigen*[tiab]`.
+
+<em> 1. Go here: <http://www.ncbi.nlm.nih.gov/pubmed/> 2. Type in your
+favourite search terms remembering that wildcards are useful
+(e.g. `phylogen*` will match anything starting with `phylogen`, and
+logical operators can be really good, e.g. you can have
+`phylogen* OR raxml OR splitstree`. 3. Click `search` 4. Click the
+`Create RSS` link just below the search box 5. Name is something
+sensible 6. Set `Number of items to be displayed` to 100 7. Click
+`Create RSS` 8. Record the RSS URL somewhere </em>
+
+The somewhere bit for me is a character vector in R in `bot.R`.
+
 ### bioRxiv
 
-The full list of
+The full list of bioRxiv RSS feeds can be found on [biorxiv
+alertsrss](https://www.biorxiv.org/alertsrss) but you can see the ones I
+used in `bot.R` as a character vector.
+
+``` r
+# Vector of feeds of possible interest from bioRxiv, yields the last 30 days
+brv_feeds <- c("http://connect.biorxiv.org/biorxiv_xml.php?subject=biochemistry",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=bioinformatics",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=biophysics",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=cancer_biology",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=cell_biology",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=developmental_biology",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=genetics",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=genomics",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=immunology",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=microbiology",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=molecular_biology",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=neuroscience",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=pharmacology",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=physiology",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=synthetic_biology",
+               "http://connect.biorxiv.org/biorxiv_xml.php?subject=systems_biology")
+```
+
+Unlike PubMed the feeds provide all the papers the last 30 days and then
+have to filter them for your interests. I did this using `stringr` and a
+regex in `bot.R` like so:
+
+``` r
+brv_filt <- brv |> 
+  filter(str_detect(item_title, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)") |
+         str_detect(item_description, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)")) |> 
+  mutate(link = str_extract(item_link,"^.*?[^?]*"))
+```
 
 ## Adapt the R script
 
+The R script is based on the instructions in the post: [R bloggers
+Bluesky bot using
+atrrr](https://www.johannesbgruber.eu/post/2024-01-18-building-r-bloggers-bluesky-bot-with-atrrr/)
+and uses [`tidyrss`](https://robertmyles.github.io/tidyRSS/) to read the
+RSS feeds.
+
+You’ll need to install the packages and then adapt the script
+accordingly.
+
+When you get to part 3 of the script, you need to run the function
+`auth()` from `atrrr` with the Bluesky name of the account you set-up in
+Part 1 and follow the prompts to get the app password that you will save
+for Bluesky authentication.
+
+So for example I ran:
+
+``` r
+auth("protpapers.bsky.social")
+```
+
+This opens Bluesky and in settings I went to App Password, clicked Add
+App Password which created a random *name* for the password
+(e.g. PrussianBlue) and then I clicked to Create App Password to
+actually get the password associated with the name.
+
+Paste the password back into the prompt in R and also save it in your
+`.REnviron` like so
+
+Open `.Renviron` with the `usethis` package:
+
+``` r
+usethis::edit_r_environ()
+```
+
+Add the password like so:
+
+``` r
+ATR_PW="your-password-string"
+```
+
+The `BSKY_TOKEN` below was created when we used `auth()` and setting it
+here saves it to the `papers_token.rds` file. But you can call this
+whatever you want.
+
+`ATR_PW` is then called into the environment like so:
+
+``` r
+Sys.setenv(BSKY_TOKEN = "papers_token.rds")
+pw <- Sys.getenv("ATR_PW")
+
+auth(user = "protpapers.bsky.social",
+     password = pw,
+     overwrite = TRUE)
+```
+
+You can always run `auth()` again and created a new password and token
+in the future if you are have problems.
+
+You can test the `bot.R` script first without deploying `bot.yml` on
+Github.
+
 ## Adapt the YML for Github Workflow
 
-https://crontab.guru
+To automate the bot you need to set-up a Github Action using the
+`bot.yml`.
+
+The `bot.yml` script should work as-is as long as it’s in the
+`.github/workflows/` folder.
+
+I’ve set it run once a day at 0300 UTC (Github runs on UTC), but if you
+want to change the `cron` job, https://crontab.guru will help you with
+`cron` syntax.
+
+The last thing to make it work is to add the password as a secret called
+`ATR_PW` to Github as repository secret in Settings \> Security \>
+Secrets and variables \> Actions like so:
+
+![](github-actions.png)
+
+Everytime you push an update to Github, this will also trigger the
+workflow, otherwise it will just run at 0300. Click on Actions at the
+top of your repo to see pending workflows.

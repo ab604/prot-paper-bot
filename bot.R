@@ -47,13 +47,13 @@ brv_feeds <- c("http://connect.biorxiv.org/biorxiv_xml.php?subject=biochemistry"
 # Read all the bioRxiv feeds
 brv <- map_df(brv_feeds, tidyfeed)
 
-# Filter for keywords and trim the link
+# Filter for biorxiv feed keywords and trim the link
 brv_filt <- brv |> 
   filter(str_detect(item_title, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)") |
          str_detect(item_description, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)")) |> 
   mutate(link = str_extract(item_link,"^.*?[^?]*"))
 
-# Filter for keywords and publication of no earlier than last 30 days and trim link
+# Filter for Pubmed feed for keywords and publication of no earlier than last 30 days and trim link
 pubmed_filt <- pubmed_df |> 
   filter(str_detect(item_title, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)") |
            str_detect(item_description, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)"),
@@ -61,15 +61,15 @@ pubmed_filt <- pubmed_df |>
   mutate(link = str_extract(item_link,"^.*?[^?]*"))
 
 
-# Filter posts
+# Filter posts for unique titles
 rss_posts <- bind_rows(brv_filt |> select(item_title,item_description,link),
                        pubmed_filt |> select(item_title,item_description,link)) |> 
   distinct(item_title, .keep_all = T)  
 
-## Part 2: create posts from feed
+## Part 2: create posts from feed using paper title and link
 posts <- rss_posts |>
   mutate(post_text = glue("{item_title} {link}"), # Needs to be <300 characters
-         timestamp = now())
+         timestamp = now()) # Add timestamp
   
 ## Part 3: get already posted updates and de-duplicate
 Sys.setenv(BSKY_TOKEN = "papers_token.rds")
@@ -79,7 +79,7 @@ auth(user = "protpapers.bsky.social",
      password = pw,
      overwrite = TRUE)
 
-# Check for exisiting posts
+# Check for existing posts
 old_posts <- get_skeets_authored_by("protpapers.bsky.social", limit = 5000L)
 # Filter to post only new stuff
 posts_new <- posts |>
