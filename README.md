@@ -13,14 +13,15 @@ neoantigens and HDX-MS.
 
 It’s written in R and uses Github Actions and YML file to run workflow.
 
-Here’s what I did if you want to fork this and make your own.
+Here’s what I did if you want to make your own. There’s probably ways to
+make it better.
 
 ## 1. Set-up Bluesky
 
 Follow these instructions from the `phypapers` readme:
 
-<em> Obviously you need an account to post to. This part gets you set up
-on Bluesky, whether you have an existing personal account or not.
+<em> “Obviously you need an account to post to. This part gets you set
+up on Bluesky, whether you have an existing personal account or not.
 
 If you don’t have a Bluesky account: Go to https://bsky.app/, and click
 ‘Sign Up’ If you do have a Bluesky account, log in then go to Settings
@@ -41,13 +42,22 @@ there if you want to. It would be great if you could also put a link to
 these instructions on your literature bot - that way anyone who sees
 yours can also make their own. On my profile I just wrote: “Make your
 own literature bot with these instructions:
-https://github.com/roblanf/phypapers. </em>
+https://github.com/roblanf/phypapers.” </em>
 
 There’s another step to set-up and get the app password and token, but
 we do that with the `atrrr` package:
 https://jbgruber.github.io/atrrr/index.html later on.
 
 ## RSS feeds
+
+For the RSS feeds I played around with the searches on PubMed and
+bioRxiv until I got something reasonable.
+
+### PubMed
+
+### bioRxiv
+
+The full list of
 
 ## Adapt the R script
 
