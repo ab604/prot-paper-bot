@@ -19,8 +19,8 @@ Here’s what I did if you want to fork this and make your own.
 
 Follow these instructions from the `phypapers` readme:
 
-``` {markdown}
-Obviously you need an account to post to. This part gets you set up on Bluesky, whether you have an existing personal account or not.
+\*Obviously you need an account to post to. This part gets you set up on
+Bluesky, whether you have an existing personal account or not.
 
     If you don't have a Bluesky account: Go to https://bsky.app/, and click 'Sign Up'
     If you do have a Bluesky account, log in then go to Settings and click Add Account
@@ -30,8 +30,7 @@ Obviously you need an account to post to. This part gets you set up on Bluesky, 
     Decide on a handle. Following flypapers' lead, I suggest a short prefix followed immediately by papers, e.g. flypapers, phypapers, etc. This means we all know it when we see a literature bot.
     Click on your new profile, go to Edit Profile
         Username: I suggest making this prefix_papers e.g. fly_papers or phy_papers. As above, this helps everyone know what's a literature bot
-        Description: pretty obvious, but it's always nice to know the human who runs it, so good to put your name there if you want to. It would be great if you could also put a link to these instructions on your literature bot - that way anyone who sees yours can also make their own. On my profile I just wrote: "Make your own literature bot with these instructions: https://github.com/roblanf/phypapers"
-```
+        Description: pretty obvious, but it's always nice to know the human who runs it, so good to put your name there if you want to. It would be great if you could also put a link to these instructions on your literature bot - that way anyone who sees yours can also make their own. On my profile I just wrote: "Make your own literature bot with these instructions: https://github.com/roblanf/phypapers"*
 
 There’s another step to set-up and get the app password and token, but
 we do that with the `atrrr` package:
