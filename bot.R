@@ -20,8 +20,8 @@ library(xml2)
 # immunopeptidom*[tiab] AND neoantigen*[tiab]
 pubmed_feeds <- c("https://pubmed.ncbi.nlm.nih.gov/rss/search/1jsI3JGQCWWBHeHK4cUErWUE19BvzlvyZfNdMmdXcysd7rmgww/?limit=15&utm_campaign=pubmed-2&fc=20240902141654",
                   "https://pubmed.ncbi.nlm.nih.gov/rss/search/1RKSf0HH9l2s1BIME29OLF8W10zHSLgJVuDXmjq8ihvd8F3Aro/?limit=100&utm_campaign=pubmed-2&fc=20240902141801",
-                  "https://pubmed.ncbi.nlm.nih.gov/rss/search/1RKSf0HH9l2s1BIME29OLF8W10zHSLgJVuDXmjq8ihvd8F3Aro/?limit=100&utm_campaign=pubmed-2&fc=20240902141801"
-                  )
+                  "https://pubmed.ncbi.nlm.nih.gov/rss/search/1RKSf0HH9l2s1BIME29OLF8W10zHSLgJVuDXmjq8ihvd8F3Aro/?limit=100&utm_campaign=pubmed-2&fc=20240902141801",
+                  "https://pubmed.ncbi.nlm.nih.gov/rss/search/1hEma6JdH30oOMMmBp0-KmZH8miGfDm3XJPkSNxx4xT_wg2sgf/?limit=5&utm_campaign=pubmed-2&fc=20240910121226")
 
 # Read all the PubMed feeds
 pubmed_df <- map_df(pubmed_feeds, tidyfeed) 
