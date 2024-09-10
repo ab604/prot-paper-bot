@@ -201,7 +201,7 @@ To automate the bot you need to set-up a Github Action using the
 The `bot.yml` script should work as-is as long as it’s in the
 `.github/workflows/` folder.
 
-I’ve set it run twice a day at 0000 and 1200 UTC (Github runs on UTC),
+I’ve set it run twice a day at 0100 and 1300 UTC (Github runs on UTC),
 but if you want to change the `cron` job, <https://crontab.guru> will
 help you with `cron` syntax.
 
