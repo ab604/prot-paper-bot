@@ -55,7 +55,7 @@ brv_filt <- brv |>
 
 # Filter for Pubmed feed for keywords and publication of no earlier than last 30 days and trim link
 pubmed_filt <- pubmed_df |> 
-  filter(str_detect(item_title, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)") |
+  filter(str_detect(item_title, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)|[Dd]uctal") |
            str_detect(item_description, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)"),
          item_pub_date >= today() - 29) |> 
   mutate(link = str_extract(item_link,"^.*?[^?]*"))
