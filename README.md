@@ -9,11 +9,12 @@ This is the bot for @prot_papers.bsky.social that was inspired and
 developed from bots created by https://github.com/roblanf/phypapers and
 https://github.com/JBGruber/r-bloggers-bluesky.
 
-The bot runs once a day to post new papers from PubMed and bioRxiv for
+The bot runs twice a day to post new papers from PubMed and bioRxiv for
 subjects that are of interest to me, namely HLA immunopeptidomics,
 neoantigens and HDX-MS.
 
-It’s written in R and uses Github Actions and YML file to run workflow.
+It’s written in R and uses Github Actions and YML file with `cron` to
+run workflow.
 
 Here’s what I did if you want to make your own. There’s probably ways to
 make it better.
