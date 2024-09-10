@@ -55,7 +55,7 @@ brv_filt <- brv |>
 
 # Filter for Pubmed feed for keywords and publication of no earlier than last 30 days and trim link
 pubmed_filt <- pubmed_df |> 
-  filter(str_detect(item_title, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)|[Dd]uctal") |
+  filter(str_detect(item_title, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)|overabundance") |
            str_detect(item_description, "[Ii]mmunopep*|[Pp]eptidomi*|[Pp]eptidome|HDX-MS|([Pp]roteogenomics & [Nn]eoantigen)"),
          item_pub_date >= today() - 29) |> 
   mutate(link = str_extract(item_link,"^.*?[^?]*"))
@@ -89,7 +89,7 @@ posts_new <- posts |>
 for (i in seq_len(nrow(posts_new))) {
   # if people upload broken preview images, this fails
   resp <- try(post_skeet(text = posts_new$post_text[i],
-                         created_at = posts_new$timestamp[i]))
+                         created_at = posts_new$timestamp[i], preview_card = FALSE))
   if (methods::is(resp, "try-error")) post_skeet(text = posts_new$post_text[i],
                                                  created_at = posts_new$timestamp[i],
                                                  preview_card = FALSE)
