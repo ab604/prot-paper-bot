@@ -1,5 +1,5 @@
 
-Last Updated on 2024-09-10
+Last Updated on 2024-09-11
 
 # Prot papers bot
 
@@ -212,5 +212,11 @@ Secrets and variables \> Actions like so:
 ![](github-actions.png)
 
 Everytime you push an update to Github, this will also trigger the
-workflow, otherwise it will just run at 0300. Click on Actions at the
-top of your repo to see pending workflows.
+workflow, otherwise it will run according to the `cron` times. Click on
+Actions at the top of your repo to see pending workflows.
+
+[@jbgruber.bsky.social](https://bsky.app/profile/jbgruber.bsky.social)
+added a Keep Alive job by https://github.com/gautamkrishnar, to the YML
+to prevent Github disabling the botif no commits are made to the repo
+after 60 days:
+https://github.com/marketplace/actions/keepalive-workflow.
