@@ -82,7 +82,6 @@ jobs:
         # Run bot with error check
       - name: "Bot - Run"
         run: |
-          run: |
             tryCatch({
             source('bot.R')
             }, error = function(e) {
