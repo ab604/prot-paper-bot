@@ -210,7 +210,7 @@ help you with `cron` syntax.
 With help from Claude, I’ve revised the `.yml` to speed it up using
 caching for system requirements and R packages. It should also catch
 errors and report them as log files too. Bot runtime is now about 1 min.
-30 seconds.
+45 seconds.
 
 The last thing to make it work is to add the password as a secret called
 `ATR_PW` to Github as repository secret in Settings \> Security \>
