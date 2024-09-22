@@ -33,7 +33,7 @@ jobs:
           echo "libcurl4-openssl-dev" > apt-packages.txt
 
       - name: Cache system dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-sys-deps
         with:
           path: ${{ env.APT_CACHE }}
