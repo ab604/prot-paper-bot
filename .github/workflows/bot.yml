@@ -26,12 +26,12 @@ jobs:
       - name: Cache packages
         uses: actions/cache@v3
         with:
-        path: |
-          ${{ env.R_LIBS_USER }}
-          ~/.local/share/renv
-        key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-renv-
+          path: |
+            ${{ env.R_LIBS_USER }}
+            ~/.local/share/renv
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
 
       - name: Create system dependencies hash
         id: sys-deps-hash
