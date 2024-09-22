@@ -14,7 +14,7 @@ jobs:
     name: bot
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
     
@@ -23,33 +23,28 @@ jobs:
           r-version: 'release'
           use-public-rspm: true
           
-      - name: Cache packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ env.R_LIBS_USER }}
-            ~/.local/share/renv
-          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-renv-
-
-      - name: Create system dependencies hash
-        id: sys-deps-hash
+      - name: Create apt cache directory
         run: |
-          echo "hash=$(echo libcurl4-openssl-dev | md5sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          mkdir -p ./.apt-cache
+          echo "APT_CACHE=$PWD/.apt-cache" >> $GITHUB_ENV
+
+      - name: Create apt package list
+        run: |
+          echo "libcurl4-openssl-dev" > apt-packages.txt
 
       - name: Cache system dependencies
         uses: actions/cache@v3
         id: cache-sys-deps
         with:
-          path: /var/cache/apt/archives
-          key: ${{ runner.os }}-sys-deps-${{ steps.sys-deps-hash.outputs.hash }}
-      
-      # these dependencies are needed for pak to install packages
+          path: ${{ env.APT_CACHE }}
+          key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-packages.txt') }}
+
       - name: System dependencies
-        if: steps.cache-sys-deps.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
+          sudo apt-get --download-only install -y $(cat apt-packages.txt)
+          sudo cp /var/cache/apt/archives/*.deb ${{ env.APT_CACHE }}/
+          sudo apt-get install -y $(cat apt-packages.txt)
 
       - name: Initialize renv
         shell: Rscript {0}
