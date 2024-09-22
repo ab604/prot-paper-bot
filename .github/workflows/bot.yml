@@ -94,14 +94,14 @@ jobs:
           ATR_PW: ${{ secrets.ATR_PW }} # to authenticat, store your app pw as a secret
         
         # Write out logs if workflow fails  
-        - name: Upload logs
-          uses: actions/upload-artifact@v3
-          if: failure()
-          with:
-            name: r-logs
-            path: |
-              *.Rout
-              .github/depends.Rds
+        # - name: Upload logs
+        #   uses: actions/upload-artifact@v3
+        #   if: failure()
+        #   with:
+        #     name: r-logs
+        #     path: |
+        #       *.Rout
+        #       .github/depends.Rds
           
         # after 60 days without a commit, the bot is disabled by GitHub. keepalive-workflow 
         # prevents that
