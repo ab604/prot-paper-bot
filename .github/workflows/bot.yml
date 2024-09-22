@@ -48,7 +48,8 @@ jobs:
         with:
           path: ${{ env.APT_CACHE }}
           key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-packages.txt') }}
-
+      
+      # Ubuntu dependencies
       - name: System dependencies
         run: |
           sudo apt-get update
@@ -70,6 +71,7 @@ jobs:
             renv::restore()
           }
           
+      # R dependencies   
       - name: Install dependencies
         shell: Rscript {0}
         run: |
@@ -90,7 +92,7 @@ jobs:
             })
         shell: Rscript {0}
         env:
-          ATR_PW: ${{ secrets.ATR_PW }} # to authenticat, store your app pw as a secret
+          ATR_PW: ${{ secrets.ATR_PW }} # to authenticate, store your app pw as a secret
         
       # Write out logs if workflow fails
       - name: Upload logs
