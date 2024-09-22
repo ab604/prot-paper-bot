@@ -39,7 +39,7 @@ jobs:
           deps <- c(deps, "jsonlite", "dplyr","remotes")
           # should handle remaining system requirements automatically
           pak::pkg_install(deps)
-          saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
+          saveRDS(remotes::package_deps(deps, dependencies = TRUE), ".github/depends.Rds", version = 2)
         shell: Rscript {0}
        
       # Cache R packages to speed up  

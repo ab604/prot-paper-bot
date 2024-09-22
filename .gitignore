@@ -7,6 +7,5 @@
 .quarto
 *.qmd
 .Renviron
-*.rds
 delete-*
 config.json
