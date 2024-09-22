@@ -9,3 +9,4 @@
 .Renviron
 delete-*
 config.json
+new-bot.yml
