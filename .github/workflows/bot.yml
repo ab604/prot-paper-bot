@@ -95,7 +95,7 @@ jobs:
         
         # Write out logs if workflow fails  
         - name: Upload logs
-          uses: actions/upload-artifact@v4
+          uses: actions/upload-artifact@v3
           if: failure()
           with:
             name: r-logs
