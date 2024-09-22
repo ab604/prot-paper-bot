@@ -22,7 +22,7 @@ jobs:
 
         # this one makes sure the files from your repo are accessible
       - name: Setup - Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
         # these dependencies are needed for pak to install packages
       - name: System dependencies
@@ -36,10 +36,19 @@ jobs:
           deps <- unique(renv::dependencies(".")$Package)
           # use github version for now
           deps[deps == "atrrr"] <- "JBGruber/atrrr"
-          deps <- c(deps, "jsonlite", "dplyr")
+          deps <- c(deps, "jsonlite", "dplyr","remotes")
           # should handle remaining system requirements automatically
           pak::pkg_install(deps)
+          saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
         shell: Rscript {0}
+       
+      # Cache R packages to speed up  
+      - name: Cache R packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ubuntu-latest-r-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ubuntu-latest-r-
 
         # after all the preparation, it's time to run the bot
       - name: "Bot - Run"
