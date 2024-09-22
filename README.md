@@ -207,7 +207,10 @@ I’ve set it run twice a day at 0100 and 1300 UTC (Github runs on UTC),
 but if you want to change the `cron` job, <https://crontab.guru> will
 help you with `cron` syntax.
 
-I added R package caching to the `.yml` to speed it up. To do this I…
+With help from Claude, I’ve revised the `.yml` to speed it up using
+caching for system requirements and R packages. It should also catch
+errors and report them as log files too. Bot runtime is now about 1 min.
+30 seconds.
 
 The last thing to make it work is to add the password as a secret called
 `ATR_PW` to Github as repository secret in Settings \> Security \>
