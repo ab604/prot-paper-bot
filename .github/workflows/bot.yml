@@ -14,15 +14,25 @@ jobs:
     name: bot
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4 #v4 uses node 20
         with:
-          fetch-depth: 1
-    
-      - uses: r-lib/actions/setup-r@v2
+          fetch-depth: 1 # Speeds up checkout
+      
+      # ccache for compiled code    
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        
+      # Set-up R
+      - name: set-up R
+        uses: r-lib/actions/setup-r@v2
         with:
           r-version: 'release'
           use-public-rspm: true
           
+      # Create a directory .apt-cache in the workspace to store the .deb files.
+      # Cache this directory instead of the system-wide /var/cache/apt/archives.
+      # Download the .deb files to the system cache, then copies them to our workspace cache.
+      # Install the packages from the downloaded .deb files.    
       - name: Create apt cache directory
         run: |
           mkdir -p ./.apt-cache
@@ -45,7 +55,11 @@ jobs:
           sudo apt-get --download-only install -y $(cat apt-packages.txt)
           sudo cp /var/cache/apt/archives/*.deb ${{ env.APT_CACHE }}/
           sudo apt-get install -y $(cat apt-packages.txt)
-
+      
+      # Initialize renv if it's not already set up.
+      # Use renv to manage package installations.
+      # Create or update the renv.lock file.
+      # Cache the renv library.
       - name: Initialize renv
         shell: Rscript {0}
         run: |
@@ -65,11 +79,29 @@ jobs:
           renv::install("JBGruber/atrrr")
           renv::snapshot()
         
-        # after all the preparation, it's time to run the bot
+        # Run bot with error check
       - name: "Bot - Run"
-        run: Rscript 'bot.R'
+        run: |
+          run: |
+            tryCatch({
+            source('bot.R')
+            }, error = function(e) {
+            message('Error in bot.R: ', e$message)
+            quit(status = 1)
+            })
+        shell: Rscript {0}
         env:
           ATR_PW: ${{ secrets.ATR_PW }} # to authenticat, store your app pw as a secret
+        
+        # Write out logs if workflow fails  
+        - name: Upload logs
+          uses: actions/upload-artifact@v4
+          if: failure()
+          with:
+            name: r-logs
+            path: |
+              *.Rout
+              .github/depends.Rds
           
         # after 60 days without a commit, the bot is disabled by GitHub. keepalive-workflow 
         # prevents that

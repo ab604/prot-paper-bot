@@ -10,3 +10,4 @@
 delete-*
 config.json
 new-bot.yml
+apt-packages.txt
