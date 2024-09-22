@@ -22,6 +22,16 @@ jobs:
         with:
           r-version: 'release'
           use-public-rspm: true
+          
+      - name: Cache packages
+        uses: actions/cache@v3
+        with:
+        path: |
+          ${{ env.R_LIBS_USER }}
+          ~/.local/share/renv
+        key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-renv-
 
       - name: Create system dependencies hash
         id: sys-deps-hash
@@ -41,48 +51,25 @@ jobs:
         run: |
           sudo apt-get update
 
-      - uses: actions/cache@v3
-        with:
-          path: ~/.local/share/renv
-          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-renv-
-
-      - name: Restore packages
+      - name: Initialize renv
         shell: Rscript {0}
         run: |
           if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
-          renv::restore() 
-      
-      - name: Install stable dependencies
-        run: |
-          pak::pkg_install(c("jsonlite", "dplyr"))
+          if (!file.exists("renv.lock")) {
+          renv::init(force = TRUE)
+          } else {
+            renv::restore()
+          }
+          
+      - name: Install dependencies
         shell: Rscript {0}
-
-      - name: Install project-specific dependencies
         run: |
+          renv::install(c("jsonlite", "dplyr"))
           deps <- setdiff(unique(renv::dependencies(".")$Package), c("jsonlite", "dplyr"))
-          pak::pkg_install(deps)
-        shell: Rscript {0}
-
-      - name: Install development version of atrrr
-        run: |
-          pak::pkg_install("JBGruber/atrrr")
-        shell: Rscript {0}
+          renv::install(deps)
+          renv::install("JBGruber/atrrr")
+          renv::snapshot()
         
-      - name: Save package dependencies
-        run: |
-          saveRDS(remotes::package_deps(unique(renv::dependencies(".")$Package), dependencies = TRUE), ".github/depends.Rds", version = 2)
-        shell: Rscript {0}
-
-      # Cache R packages to speed up  
-      - name: Cache R packages
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ubuntu-r-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ubuntu-r-
-
         # after all the preparation, it's time to run the bot
       - name: "Bot - Run"
         run: Rscript 'bot.R'
