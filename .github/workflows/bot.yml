@@ -59,17 +59,13 @@ jobs:
       - name: Get R package dependencies
         run: |
           Rscript -e 'writeLines(setdiff(unique(renv::dependencies()[["Package"]]), "renv"), ".github/r-packages.txt")'
-
-      # Cache R packages
+      
       - name: Cache R packages
         uses: actions/cache@v4
         with:
-          path: |
-            ${{ env.R_LIBS_USER }}
-            ~/.local/share/renv
-          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-renv-
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-r-${{ hashFiles('.github/r-packages.txt') }}
+          restore-keys: ${{ runner.os }}-r-
       
       # Initialize renv and install R dependencies
       - name: Initialize renv and install R dependencies
