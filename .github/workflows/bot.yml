@@ -30,6 +30,19 @@ jobs:
         with:
           r-version: 'release'
           use-public-rspm: true
+          
+                
+      - name: Get R package dependencies
+        run: |
+          Rscript -e 'writeLines(setdiff(unique(renv::dependencies()[["Package"]]), "renv"), ".github/r-packages.txt")'
+      # Cache R packages
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-r-${{ hashFiles('.github/r-packages.txt') }}
+          restore-keys: ${{ runner.os }}-r-
+      
       
       # Cache Ubuntu dependencies    
       - name: Cache system dependencies
@@ -55,15 +68,7 @@ jobs:
           sudo cp ~/.apt-cache/*.deb /var/cache/apt/archives/
           sudo apt-get install -y libcurl4-openssl-dev
       
-      # Cache R packages
-      - name: Cache R packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.local/share/renv
-          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-renv-
-      
+  
       # Initialize renv and install R dependencies
       - name: Initialize renv and install R dependencies
         run: |
