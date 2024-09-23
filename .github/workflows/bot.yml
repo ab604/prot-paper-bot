@@ -55,14 +55,11 @@ jobs:
           sudo cp ~/.apt-cache/*.deb /var/cache/apt/archives/
           sudo apt-get install -y libcurl4-openssl-dev
       
-      
       # Cache R packages
       - name: Cache R packages
         uses: actions/cache@v4
         with:
-          path: |
-            ${{ env.R_LIBS_USER }}
-            ~/.local/share/renv
+          path: ~/.local/share/renv
           key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
           restore-keys: |
             ${{ runner.os }}-renv-
