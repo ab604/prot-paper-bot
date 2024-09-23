@@ -20,8 +20,8 @@ jobs:
           fetch-depth: 1 # Speeds up checkout
       
       # ccache for compiled code
-      - name: ccache
-        uses: hendrikmuhs/ccache-action@v1.2
+      #- name: ccache
+      #  uses: hendrikmuhs/ccache-action@v1.2
       
       # Set-up R  
       - name: Set up R
@@ -99,7 +99,6 @@ jobs:
           name: r-logs
           path: |
             *.Rout
-            .github/depends.Rds
             
       # After 60 days without a commit, the bot is disabled by GitHub.  
       # keepalive-workflow prevents that       
