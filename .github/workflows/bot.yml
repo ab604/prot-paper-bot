@@ -106,11 +106,3 @@ jobs:
       - name: Keepalive Workflow
         uses: gautamkrishnar/keepalive-workflow@2.0.7
         
-     - name: Cleanup
-        if: always()
-        run: |
-          rm -rf ~/.apt-cache
-          rm -rf ~/.local/share/renv
-          rm -rf ${{ env.R_LIBS_USER }}
-          
-
