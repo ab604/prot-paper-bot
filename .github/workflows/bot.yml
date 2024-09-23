@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1 # Speed up checkout
+          fetch-depth: 1 # Speeds up checkout
       
       # ccache for compiled code 
       # don't think it's needed, but I'll leave it here
@@ -55,17 +55,17 @@ jobs:
           sudo cp ~/.apt-cache/*.deb /var/cache/apt/archives/
           sudo apt-get install -y libcurl4-openssl-dev
       
-      # Get R dependencies
-      - name: Get R package dependencies
-        run: |
-          Rscript -e 'writeLines(setdiff(unique(renv::dependencies()[["Package"]]), "renv"), ".github/r-packages.txt")'
       
+      # Cache R packages
       - name: Cache R packages
         uses: actions/cache@v4
         with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-r-${{ hashFiles('.github/r-packages.txt') }}
-          restore-keys: ${{ runner.os }}-r-
+          path: |
+            ${{ env.R_LIBS_USER }}
+            ~/.local/share/renv
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
       
       # Initialize renv and install R dependencies
       - name: Initialize renv and install R dependencies
@@ -116,3 +116,4 @@ jobs:
           rm -rf ~/.local/share/renv
           rm -rf ${{ env.R_LIBS_USER }}
           
+
