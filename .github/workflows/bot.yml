@@ -1,7 +1,7 @@
 name: "Update Bot"
 on:
   schedule:
-    - cron: '0 1,13 * * *' # Run the bot twice a day at 0100 and 1300 UTC
+    - cron: '0 1,13 * * *' # run the bot twice a day at 0100 and 1300 UTC
   push:
     branches:
       - main
@@ -13,88 +13,50 @@ jobs:
   blog-updates:
     name: bot
     runs-on: ubuntu-latest
+    env:
+      RENV_PATHS_ROOT: ~/.local/share/renv
     
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1 # Speeds up checkout
-      
-      # ccache for compiled code 
-      # don't think it's needed, but I'll leave it here
-      #- name: ccache
-      #  uses: hendrikmuhs/ccache-action@v1.2
-      
-      # Set-up R  
+          fetch-depth: 1
+        
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: 'release'
           use-public-rspm: true
-      
-      # Install renv package for reproducible environments  
+          
       - name: Install renv
         run: |
           install.packages('renv')
           renv::init(force = TRUE)
         shell: Rscript {0}
       
-      # Get R dependencies
-      - name: Get R package dependencies
-        run: |
-          renv::install(c("jsonlite", "dplyr", "JBGruber/atrrr"))
-          deps <- setdiff(unique(renv::dependencies()[["Package"]]), "renv")
-          writeLines(deps, ".github/r-packages.txt")
-        shell: Rscript {0}
-      
-      # Cache R packages
       - name: Cache R packages
         uses: actions/cache@v4
         with:
-          path: ~/.local/share/renv
-          key: ${{ runner.os }}-renv-${{ hashFiles('.github/r-packages.txt') }}
-          restore-keys: ${{ runner.os }}-renv-
-          
-      # Cache Ubuntu dependencies    
-      - name: Cache system dependencies
-        uses: actions/cache@v4
-        id: cache-sys-deps
-        with:
-          path: ~/.apt-cache
-          key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-packages.txt') }}
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
       
-      # Install Ubuntu dependencies
       - name: Install system dependencies
-        if: steps.cache-sys-deps.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y libcurl4-openssl-dev
-          mkdir -p ~/.apt-cache
-          sudo cp /var/cache/apt/archives/*.deb ~/.apt-cache/
       
-      # Restor Ubuntu dependencies
-      - name: Restore system dependencies
-        if: steps.cache-sys-deps.outputs.cache-hit == 'true'
+      - name: Restore renv environment
         run: |
-          sudo cp ~/.apt-cache/*.deb /var/cache/apt/archives/
-          sudo apt-get install -y libcurl4-openssl-dev
-      
-  
-      # Initialize renv and install R dependencies
-      - name: Initialize renv and install R dependencies
-        run: |
-          if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
-          if (!file.exists("renv.lock")) {
-            renv::init(force = TRUE)
-          } else {
-            renv::restore()
-          }
-          renv::install(c("jsonlite", "dplyr", "JBGruber/atrrr"))
-          deps <- setdiff(unique(renv::dependencies(".")$Package), c("jsonlite", "dplyr"))
-          renv::install(deps)
-          renv::snapshot()
+          renv::restore()
         shell: Rscript {0}
       
-      # Run bot with error check  
+      - name: Install additional R packages
+        run: |
+          renv::install(c("jsonlite", "dplyr", "JBGruber/atrrr"))
+          renv::snapshot()
+        shell: Rscript {0}
+        
       - name: Run bot
         run: |
           tryCatch({
@@ -106,8 +68,7 @@ jobs:
         shell: Rscript {0}
         env:
           ATR_PW: ${{ secrets.ATR_PW }}
-          
-      # Write out logs if workflow fails 
+        
       - name: Upload logs
         uses: actions/upload-artifact@v3
         if: failure()
@@ -115,9 +76,8 @@ jobs:
           name: r-logs
           path: |
             *.Rout
-            
-      # After 60 days without a commit, the bot is disabled by GitHub.  
-      # keepalive-workflow prevents that       
+            .github/depends.Rds
+              
       - name: Keepalive Workflow
         uses: gautamkrishnar/keepalive-workflow@2.0.7
         
