@@ -63,11 +63,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-renv-
       
-      # Install R dependencies
-      - name: Install R dependencies
+      # Initialize renv and install R dependencies
+      - name: Initialize renv and install R dependencies
         run: |
           if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
-          renv::restore()
+          if (!file.exists("renv.lock")) {
+            renv::init(force = TRUE)
+          } else {
+            renv::restore()
+          }
           renv::install(c("jsonlite", "dplyr", "JBGruber/atrrr"))
           deps <- setdiff(unique(renv::dependencies(".")$Package), c("jsonlite", "dplyr"))
           renv::install(deps)
