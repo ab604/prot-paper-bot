@@ -41,9 +41,28 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-renv-
       
+      # Cache Ubuntu dependencies    
+      - name: Cache system dependencies
+        uses: actions/cache@v4
+        id: cache-sys-deps
+        with:
+          path: ~/.apt-cache
+          key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-packages.txt') }}
+      
+      # Install Ubuntu dependencies
       - name: Install system dependencies
+        if: steps.cache-sys-deps.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev
+          mkdir -p ~/.apt-cache
+          sudo cp /var/cache/apt/archives/*.deb ~/.apt-cache/
+      
+      # Restore Ubuntu dependencies
+      - name: Restore system dependencies
+        if: steps.cache-sys-deps.outputs.cache-hit == 'true'
+        run: |
+          sudo cp ~/.apt-cache/*.deb /var/cache/apt/archives/
           sudo apt-get install -y libcurl4-openssl-dev
       
       - name: Restore renv environment
@@ -76,7 +95,6 @@ jobs:
           name: r-logs
           path: |
             *.Rout
-            .github/depends.Rds
               
       - name: Keepalive Workflow
         uses: gautamkrishnar/keepalive-workflow@2.0.7
