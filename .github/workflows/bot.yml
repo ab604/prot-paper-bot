@@ -30,13 +30,15 @@ jobs:
         with:
           r-version: 'release'
           use-public-rspm: true
-          
+      
+      # Install renv package for reproducible environments  
       - name: Install renv
         run: |
           install.packages('renv')
           renv::init(force = TRUE)
         shell: Rscript {0}
       
+      # Get R dependencies
       - name: Get R package dependencies
         run: |
           renv::install(c("jsonlite", "dplyr", "JBGruber/atrrr"))
@@ -44,6 +46,7 @@ jobs:
           writeLines(deps, ".github/r-packages.txt")
         shell: Rscript {0}
       
+      # Cache R packages
       - name: Cache R packages
         uses: actions/cache@v4
         with:
