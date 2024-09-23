@@ -2,7 +2,7 @@ name: "Update Bot"
 on:
   schedule:
     - cron: '0 1,13 * * *' # run the bot twice a day at 0100 and 1300 UTC
-  push: # also run the action when something on a new commit
+  push:
     branches:
       - main
   pull_request:
@@ -13,88 +13,81 @@ jobs:
   blog-updates:
     name: bot
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4 #v4 uses node 20
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1 # Speeds up checkout
       
-      # ccache for compiled code    
+      # ccache for compiled code
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
-        
-      # Set-up R
-      - name: set-up R
+      
+      # Set-up R  
+      - name: Set up R
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: 'release'
           use-public-rspm: true
-          
-      # Create a directory .apt-cache in the workspace to store the .deb files.
-      # Cache this directory instead of the system-wide /var/cache/apt/archives.
-      # Download the .deb files to the system cache, then copies them to our workspace cache.
-      # Install the packages from the downloaded .deb files.    
-      - name: Create apt cache directory
-        run: |
-          mkdir -p ./.apt-cache
-          echo "APT_CACHE=$PWD/.apt-cache" >> $GITHUB_ENV
-
-      - name: Create apt package list
-        run: |
-          echo "libcurl4-openssl-dev" > apt-packages.txt
-
+      
+      # Cache Ubuntu dependencies    
       - name: Cache system dependencies
         uses: actions/cache@v4
         id: cache-sys-deps
         with:
-          path: ${{ env.APT_CACHE }}
+          path: ~/.apt-cache
           key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-packages.txt') }}
       
-      # Ubuntu dependencies
-      - name: System dependencies
+      # Install Ubuntu dependencies
+      - name: Install system dependencies
+        if: steps.cache-sys-deps.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get --download-only install -y $(cat apt-packages.txt)
-          sudo cp /var/cache/apt/archives/*.deb ${{ env.APT_CACHE }}/
-          sudo apt-get install -y $(cat apt-packages.txt)
+          sudo apt-get install -y libcurl4-openssl-dev
+          mkdir -p ~/.apt-cache
+          sudo cp /var/cache/apt/archives/*.deb ~/.apt-cache/
       
-      # Initialize renv if it's not already set up.
-      # Use renv to manage package installations.
-      # Create or update the renv.lock file.
-      # Cache the renv library.
-      - name: Initialize renv
-        shell: Rscript {0}
+      # Restor Ubuntu dependencies
+      - name: Restore system dependencies
+        if: steps.cache-sys-deps.outputs.cache-hit == 'true'
+        run: |
+          sudo cp ~/.apt-cache/*.deb /var/cache/apt/archives/
+          sudo apt-get install -y libcurl4-openssl-dev
+      
+      # Cache R packages
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/renv
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
+      
+      # Install R dependencies
+      - name: Install R dependencies
         run: |
           if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
-          if (!file.exists("renv.lock")) {
-          renv::init(force = TRUE)
-          } else {
-            renv::restore()
-          }
-          
-      # R dependencies   
-      - name: Install dependencies
-        shell: Rscript {0}
-        run: |
-          renv::install(c("jsonlite", "dplyr"))
+          renv::restore()
+          renv::install(c("jsonlite", "dplyr", "JBGruber/atrrr"))
           deps <- setdiff(unique(renv::dependencies(".")$Package), c("jsonlite", "dplyr"))
           renv::install(deps)
-          renv::install("JBGruber/atrrr")
           renv::snapshot()
-        
-        # Run bot with error check
-      - name: "Bot - Run"
+        shell: Rscript {0}
+      
+      # Run bot with error check  
+      - name: Run bot
         run: |
-            tryCatch({
+          tryCatch({
             source('bot.R')
-            }, error = function(e) {
+          }, error = function(e) {
             message('Error in bot.R: ', e$message)
             quit(status = 1)
-            })
+          })
         shell: Rscript {0}
         env:
-          ATR_PW: ${{ secrets.ATR_PW }} # to authenticate, store your app pw as a secret
-        
-      # Write out logs if workflow fails
+          ATR_PW: ${{ secrets.ATR_PW }}
+          
+      # Write out logs if workflow fails 
       - name: Upload logs
         uses: actions/upload-artifact@v3
         if: failure()
@@ -103,8 +96,8 @@ jobs:
           path: |
             *.Rout
             .github/depends.Rds
-              
-        # After 60 days without a commit, the bot is disabled by GitHub. keepalive-workflow 
-        # prevents that
+            
+      # After 60 days without a commit, the bot is disabled by GitHub.  
+      # keepalive-workflow prevents that       
       - name: Keepalive Workflow
         uses: gautamkrishnar/keepalive-workflow@2.0.7
