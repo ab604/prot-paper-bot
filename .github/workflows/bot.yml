@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1 # Speeds up checkout
+          fetch-depth: 1 # Speed up checkout
       
       # ccache for compiled code 
       # don't think it's needed, but I'll leave it here
