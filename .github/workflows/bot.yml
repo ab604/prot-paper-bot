@@ -84,7 +84,7 @@ jobs:
       - name: Install additional R packages
         run: |
           Sys.setenv(GITHUB_PAT = "${{ secrets.GH_PAT }}")
-          renv::install(c("jsonlite", "dplyr", "JBGruber/atrrr"))
+          renv::install(c("jsonlite", "dplyr", "atrrr"))
           renv::snapshot()
         shell: Rscript {0}
         env:
