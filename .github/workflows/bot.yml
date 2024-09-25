@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RENV_PATHS_ROOT: ~/.local/share/renv
-      GH_PAT: ${{ secrets.GH_PAT }}
+      GITHUB_PAT: ${{ secrets.GH_PAT }}
     
     steps:
       # Check out the repository code
@@ -83,9 +83,12 @@ jobs:
       # Install additional R packages
       - name: Install additional R packages
         run: |
+          Sys.setenv(GITHUB_PAT = "${{ secrets.GH_PAT }}")
           renv::install(c("jsonlite", "dplyr", "JBGruber/atrrr"))
           renv::snapshot()
         shell: Rscript {0}
+        env:
+          GITHUB_PAT: ${{ secrets.GH_PAT }}
         
       # Run the bot script
       - name: Run bot
