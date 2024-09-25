@@ -18,12 +18,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RENV_PATHS_ROOT: ~/.local/share/renv
+      GH_PAT: ${{ secrets.GH_PAT }}
     
     steps:
       # Check out the repository code
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          token: ${{ secrets.GH_PAT }}
         
       # Set up R environment
       - name: Set up R
