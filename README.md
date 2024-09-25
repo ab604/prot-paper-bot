@@ -1,5 +1,5 @@
 
-Last Updated on 2024-09-22
+Last Updated on 2024-09-25
 
 # Prot papers bot
 
@@ -212,9 +212,26 @@ caching for system requirements and R packages. It should also catch
 errors and report them as log files too. Bot runtime is now about 1 min.
 45 seconds.
 
-The last thing to make it work is to add the password as a secret called
-`ATR_PW` to Github as repository secret in Settings \> Security \>
-Secrets and variables \> Actions like so:
+It uses [renv](https://rstudio.github.io/renv/articles/renv.html) for
+caching and I created a GitHub Personal Access Token (PAT) for any parts
+that require authentication including R package installation.
+
+To create a GitHub PAT:
+
+-   Go to your GitHub account settings
+-   Navigate to “Developer settings” \> “Personal access tokens” \>
+    “Tokens (classic)”
+-   Click “Generate new token”
+-   Give it a descriptive name and select the necessary scopes
+    (typically repo for full repository access)
+-   Copy the generated token
+
+Add the PAT as a secret in the bot repository to Github as repository
+secret in Settings \> Security \> Secrets and variables \> Actions like
+so:
+
+-   Name it `GH_PAT` and paste your token as the value
+-   Likewise we need to add the password as a secret called `ATR_PW`
 
 ![](github-actions.png)
 
