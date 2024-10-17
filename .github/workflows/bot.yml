@@ -12,7 +12,7 @@ permissions:
   contents: write  # Add explicit permission to write to repository
 
 jobs:
-  bsky-updates:
+  bsky_updates:
     name: bot
     runs-on: ubuntu-latest
     env:
