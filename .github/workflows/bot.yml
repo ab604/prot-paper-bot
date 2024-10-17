@@ -5,7 +5,7 @@ name: "Update Bot"
 on:
   schedule:
     - cron: '25 5,17 * * *' # run the bot twice a day at 0525 and 1725 UTC
-   workflow_dispatch:  # Allow manual triggering
+    workflow_dispatch:  # Allow manual triggering
 
 # Set permissions for the workflow
 permissions:
