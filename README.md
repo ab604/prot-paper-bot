@@ -1,5 +1,5 @@
 
-Last Updated on 2024-09-26
+Last Updated on 2024-10-17
 
 # Prot papers bot
 
@@ -213,25 +213,13 @@ errors and report them as log files too. Bot runtime is now about 1 min.
 45 seconds.
 
 It uses [renv](https://rstudio.github.io/renv/articles/renv.html) for
-caching and I created a GitHub Personal Access Token (PAT) for any parts
-that require authentication including R package installation.
+caching and I created a GitHub Token for any parts that require
+authentication including R package installation. This is enabled by
+adding `write` permissions in the Github Action.
 
-To create a GitHub PAT:
-
--   Go to your GitHub account settings
--   Navigate to “Developer settings” \> “Personal access tokens” \>
-    “Tokens (classic)”
--   Click “Generate new token”
--   Give it a descriptive name and select the necessary scopes
-    (typically repo for full repository access)
--   Copy the generated token
-
-Add the PAT as a secret in the bot repository to Github as repository
-secret in Settings \> Security \> Secrets and variables \> Actions like
-so:
-
--   Name it `GH_PAT` and paste your token as the value
--   Likewise we need to add the password as a secret called `ATR_PW`
+We need to add the password as a secret called `ATR_PW` in the bot
+repository to Github as repository secret in Settings \> Security \>
+Secrets and variables \> Actions like so:
 
 ![](github-actions.png)
 
