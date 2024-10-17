@@ -5,26 +5,22 @@ name: "Update Bot"
 on:
   schedule:
     - cron: '25 5,17 * * *' # run the bot twice a day at 0525 and 1725 UTC
-    workflow_dispatch:  # Allow manual triggering
 
-# Set permissions for the workflow
-permissions:
-  contents: write  # Add explicit permission to write to repository
 
 jobs:
-  bsky_updates:
+  blog-updates:
     name: bot
     runs-on: ubuntu-latest
     env:
       RENV_PATHS_ROOT: ~/.local/share/renv
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GH_PAT }}
     
     steps:
       # Check out the repository code
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
         
       # Set up R environment
       - name: Set up R
@@ -82,12 +78,12 @@ jobs:
       # Install additional R packages
       - name: Install additional R packages
         run: |
-          Sys.setenv(GITHUB_PAT = "${{ secrets.GITHUB_TOKEN }}")
+          Sys.setenv(GITHUB_PAT = "${{ secrets.GH_PAT }}")
           renv::install(c("jsonlite", "dplyr", "atrrr"))
           renv::snapshot()
         shell: Rscript {0}
         env:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PAT: ${{ secrets.GH_PAT }}
         
       # Run the bot script
       - name: Run bot
