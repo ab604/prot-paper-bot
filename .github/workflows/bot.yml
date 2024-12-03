@@ -24,6 +24,7 @@ jobs:
         with:
           fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: gautamkrishnar/keepalive-workflow@v2 # using the workflow with default settings
         
       # Set up R environment
       - name: Set up R
@@ -109,7 +110,3 @@ jobs:
           name: r-logs
           path: |
             *.Rout
-              
-      # Keep the workflow active to prevent GitHub from disabling it
-      - name: Keepalive Workflow
-        uses: gautamkrishnar/keepalive-workflow@2.0.7
