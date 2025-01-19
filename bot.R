@@ -12,21 +12,39 @@ library(glue)
 library(purrr)
 library(xml2)
 
+library(httr)
+
 safe_tidyfeed <- function(url) {
   tryCatch(
     {
-      # Ensure URL is properly formatted
-      parsed_url <- httr::parse_url(url)
-      built_url <- httr::build_url(parsed_url)
-      print(paste("Processing URL:", built_url))
+      # Add delay to prevent rate limiting
+      Sys.sleep(2)
 
-      # Try to fetch the feed
-      result <- tidyfeed(built_url)
+      # Custom GET request with proper headers
+      response <- GET(
+        url,
+        user_agent("R RSS Reader/1.0"),
+        add_headers(
+          "Accept" = "application/rss+xml, application/xml",
+          "Connection" = "keep-alive"
+        )
+      )
+
+      if (status_code(response) != 200) {
+        warning(paste("HTTP Error:", status_code(response), "for URL:", url))
+        return(data.frame())
+      }
+
+      # Convert response to text
+      content <- rawToChar(response$content)
+
+      # Process with tidyfeed
+      result <- tidyfeed(content)
       return(result)
     },
     error = function(e) {
       warning(paste("Error processing feed", url, ":", e$message))
-      return(data.frame()) # Return empty dataframe on error
+      return(data.frame())
     }
   )
 }
@@ -72,6 +90,13 @@ pubmed_df <- map_df(pubmed_feeds, safe_tidyfeed)
 # Read all the bioRxiv feeds
 brv <- map_df(brv_feeds, safe_tidyfeed)
 
+# After reading feeds, check if we got any data
+if (nrow(pubmed_df) == 0) {
+  warning("No data retrieved from PubMed feeds")
+}
+if (nrow(brv) == 0) {
+  warning("No data retrieved from bioRxiv feeds")
+}
 
 # Filter for biorxiv feed keywords and trim the link
 brv_filt <- brv |>
@@ -120,14 +145,3 @@ for (i in seq_len(nrow(posts_new))) {
                                                  created_at = posts_new$timestamp[i],
                                                  preview_card = FALSE)
 }
-
-# Print package versions
-print("Package versions:")
-packageVersion("tidyRSS")
-packageVersion("httr")
-packageVersion("xml2")
-
-# Print first URL to test parsing
-print("Testing URL parsing:")
-test_url <- httr::parse_url(pubmed_feeds[1])
-print(str(test_url))
