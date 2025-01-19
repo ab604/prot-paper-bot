@@ -12,6 +12,26 @@ library(glue)
 library(purrr)
 library(xml2)
 
+safe_tidyfeed <- function(url) {
+  tryCatch(
+    {
+      # Ensure URL is properly formatted
+      parsed_url <- httr::parse_url(url)
+      built_url <- httr::build_url(parsed_url)
+      print(paste("Processing URL:", built_url))
+
+      # Try to fetch the feed
+      result <- tidyfeed(built_url)
+      return(result)
+    },
+    error = function(e) {
+      warning(paste("Error processing feed", url, ":", e$message))
+      return(data.frame()) # Return empty dataframe on error
+    }
+  )
+}
+
+
 ## Part 1: read RSS feed
 
 # Vector of Pubmed feeds from search terms:
@@ -23,7 +43,7 @@ pubmed_feeds <- c("https://pubmed.ncbi.nlm.nih.gov/rss/search/1jsI3JGQCWWBHeHK4c
                   "https://pubmed.ncbi.nlm.nih.gov/rss/search/1RKSf0HH9l2s1BIME29OLF8W10zHSLgJVuDXmjq8ihvd8F3Aro/?limit=100")
 
 # Read all the PubMed feeds
-pubmed_df <- map_df(pubmed_feeds, tidyfeed)
+# pubmed_df <- map_df(pubmed_feeds, tidyfeed)
 
 # Vector of feeds of possible interest from bioRxiv, yields the last 30 days
 brv_feeds <- c("http://connect.biorxiv.org/biorxiv_xml.php?subject=biochemistry",
@@ -44,7 +64,14 @@ brv_feeds <- c("http://connect.biorxiv.org/biorxiv_xml.php?subject=biochemistry"
                "http://connect.biorxiv.org/biorxiv_xml.php?subject=systems_biology")
 
 # Read all the bioRxiv feeds
-brv <- map_df(brv_feeds, tidyfeed)
+# brv <- map_df(brv_feeds, tidyfeed)
+
+# Read all the PubMed feeds
+pubmed_df <- map_df(pubmed_feeds, safe_tidyfeed)
+
+# Read all the bioRxiv feeds
+brv <- map_df(brv_feeds, safe_tidyfeed)
+
 
 # Filter for biorxiv feed keywords and trim the link
 brv_filt <- brv |>
@@ -93,3 +120,14 @@ for (i in seq_len(nrow(posts_new))) {
                                                  created_at = posts_new$timestamp[i],
                                                  preview_card = FALSE)
 }
+
+# Print package versions
+print("Package versions:")
+packageVersion("tidyRSS")
+packageVersion("httr")
+packageVersion("xml2")
+
+# Print first URL to test parsing
+print("Testing URL parsing:")
+test_url <- httr::parse_url(pubmed_feeds[1])
+print(str(test_url))
