@@ -12,44 +12,6 @@ library(glue)
 library(purrr)
 library(xml2)
 
-library(httr)
-
-safe_tidyfeed <- function(url) {
-  tryCatch(
-    {
-      # Add delay to prevent rate limiting
-      Sys.sleep(2)
-
-      # Custom GET request with proper headers
-      response <- GET(
-        url,
-        user_agent("R RSS Reader/1.0"),
-        add_headers(
-          "Accept" = "application/rss+xml, application/xml",
-          "Connection" = "keep-alive"
-        )
-      )
-
-      if (status_code(response) != 200) {
-        warning(paste("HTTP Error:", status_code(response), "for URL:", url))
-        return(data.frame())
-      }
-
-      # Convert response to text
-      content <- rawToChar(response$content)
-
-      # Process with tidyfeed
-      result <- tidyfeed(content)
-      return(result)
-    },
-    error = function(e) {
-      warning(paste("Error processing feed", url, ":", e$message))
-      return(data.frame())
-    }
-  )
-}
-
-
 ## Part 1: read RSS feed
 
 # Vector of Pubmed feeds from search terms:
@@ -61,7 +23,7 @@ pubmed_feeds <- c("https://pubmed.ncbi.nlm.nih.gov/rss/search/1jsI3JGQCWWBHeHK4c
                   "https://pubmed.ncbi.nlm.nih.gov/rss/search/1RKSf0HH9l2s1BIME29OLF8W10zHSLgJVuDXmjq8ihvd8F3Aro/?limit=100")
 
 # Read all the PubMed feeds
-# pubmed_df <- map_df(pubmed_feeds, tidyfeed)
+pubmed_df <- map_df(pubmed_feeds, tidyfeed)
 
 # Vector of feeds of possible interest from bioRxiv, yields the last 30 days
 brv_feeds <- c("http://connect.biorxiv.org/biorxiv_xml.php?subject=biochemistry",
@@ -82,13 +44,8 @@ brv_feeds <- c("http://connect.biorxiv.org/biorxiv_xml.php?subject=biochemistry"
                "http://connect.biorxiv.org/biorxiv_xml.php?subject=systems_biology")
 
 # Read all the bioRxiv feeds
-# brv <- map_df(brv_feeds, tidyfeed)
+brv <- map_df(brv_feeds, tidyfeed)
 
-# Read all the PubMed feeds
-pubmed_df <- map_df(pubmed_feeds, safe_tidyfeed)
-
-# Read all the bioRxiv feeds
-brv <- map_df(brv_feeds, safe_tidyfeed)
 
 # After reading feeds, check if we got any data
 if (nrow(pubmed_df) == 0) {
