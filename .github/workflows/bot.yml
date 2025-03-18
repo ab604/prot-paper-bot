@@ -64,7 +64,8 @@ jobs:
         if: steps.cache-sys-deps.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcurl4-openssl-dev
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+          sudo apt-get install -y g++ gcc
           mkdir -p ~/.apt-cache
           sudo cp /var/cache/apt/archives/*.deb ~/.apt-cache/
 
@@ -73,7 +74,8 @@ jobs:
         if: steps.cache-sys-deps.outputs.cache-hit == 'true'
         run: |
           sudo cp ~/.apt-cache/*.deb /var/cache/apt/archives/
-          sudo apt-get install -y libcurl4-openssl-dev
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+          sudo apt-get install -y g++ gcc
 
       # Restore R environment from renv.lock file
       - name: Restore renv environment
