@@ -17,7 +17,7 @@ jobs:
     env:
       RENV_PATHS_ROOT: ~/.local/share/renv
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-    
+
     steps:
       # Check out the repository code
       - uses: actions/checkout@v4
@@ -27,21 +27,21 @@ jobs:
       - uses: gautamkrishnar/keepalive-workflow@v2 # using the workflow with default settings
         with:
           use_api: false
-        
+
       # Set up R environment
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: 'release'
           use-public-rspm: true
-          
+
       # Install renv for R package management
       - name: Install renv
         run: |
           install.packages('renv')
           renv::init(force = TRUE)
         shell: Rscript {0}
-      
+
       # Cache R packages to speed up future runs
       - name: Cache R packages
         uses: actions/cache@v4
@@ -50,7 +50,7 @@ jobs:
           key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
           restore-keys: |
             ${{ runner.os }}-renv-
-      
+
       # Cache Ubuntu system dependencies
       - name: Cache system dependencies
         uses: actions/cache@v4
@@ -58,7 +58,7 @@ jobs:
         with:
           path: ~/.apt-cache
           key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-packages.txt') }}
-      
+
       # Install Ubuntu system dependencies if not cached
       - name: Install system dependencies
         if: steps.cache-sys-deps.outputs.cache-hit != 'true'
@@ -67,30 +67,30 @@ jobs:
           sudo apt-get install -y libcurl4-openssl-dev
           mkdir -p ~/.apt-cache
           sudo cp /var/cache/apt/archives/*.deb ~/.apt-cache/
-      
+
       # Restore Ubuntu system dependencies from cache
       - name: Restore system dependencies
         if: steps.cache-sys-deps.outputs.cache-hit == 'true'
         run: |
           sudo cp ~/.apt-cache/*.deb /var/cache/apt/archives/
           sudo apt-get install -y libcurl4-openssl-dev
-      
+
       # Restore R environment from renv.lock file
       - name: Restore renv environment
         run: |
           renv::restore()
         shell: Rscript {0}
-      
+
       # Install additional R packages
       - name: Install additional R packages
         run: |
           Sys.setenv(GITHUB_PAT = "${{ secrets.GITHUB_TOKEN }}")
-          renv::install(c("jsonlite", "dplyr", "atrrr"))
+          renv::install(c("jsonlite", "dplyr", "atrrr","tidyRSS","anytime","lubridate","stringr","glue","purrr","xml2"))
           renv::snapshot()
         shell: Rscript {0}
         env:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-        
+
       # Run the bot script
       - name: Run bot
         run: |
@@ -103,7 +103,7 @@ jobs:
         shell: Rscript {0}
         env:
           ATR_PW: ${{ secrets.ATR_PW }}
-        
+
       # Upload logs if the job fails
       - name: Upload logs
         uses: actions/upload-artifact@v4
