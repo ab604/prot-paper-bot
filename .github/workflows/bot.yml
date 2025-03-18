@@ -1,12 +1,13 @@
 name: "Bsky Bot"
-# Define when the workflow should run
+
 on:
   schedule:
-   - cron: '25 5,17 * * *'  # run the bot twice a day at and 1725 UTC
+    - cron: '25 5,17 * * *'  # run the bot twice a day at and 1725 UTC
   workflow_dispatch:  # Allow manual triggering
-# Set permissions for the workflow
+
 permissions:
   contents: write  # Add explicit permission to write to repository
+
 jobs:
   bsky-updates:
     name: bot
@@ -20,21 +21,25 @@ jobs:
         with:
           fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: gautamkrishnar/keepalive-workflow@v2 # using the workflow with default settings
         with:
           use_api: false
+
       # Set up R environment
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: 'release'
           use-public-rspm: true
+
       # Install renv for R package management
       - name: Install renv
         run: |
           install.packages('renv')
           renv::init(force = TRUE)
         shell: Rscript {0}
+
       # Cache R packages to speed up future runs
       - name: Cache R packages
         uses: actions/cache@v4
@@ -43,6 +48,7 @@ jobs:
           key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
           restore-keys: |
             ${{ runner.os }}-renv-
+
       # Cache Ubuntu system dependencies
       - name: Cache system dependencies
         uses: actions/cache@v4
@@ -50,6 +56,7 @@ jobs:
         with:
           path: ~/.apt-cache
           key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-packages.txt') }}
+
       # Install Ubuntu system dependencies if not cached
       - name: Install system dependencies
         run: |
@@ -57,23 +64,27 @@ jobs:
           sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev
           mkdir -p ~/.apt-cache
           sudo cp /var/cache/apt/archives/*.deb ~/.apt-cache/ || true
+
       # Restore Ubuntu system dependencies from cache
       - name: Restore system dependencies
         if: steps.cache-sys-deps.outputs.cache-hit == 'true'
         run: |
           sudo cp ~/.apt-cache/*.deb /var/cache/apt/archives/ || true
           sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev
-      # Install Rcpp directly first with specific options
-      - name: Install Rcpp
-        run: |
-          options(repos = c(CRAN = "https://cloud.r-project.org"))
-          install.packages("Rcpp", type = "binary", quiet = FALSE)
-        shell: Rscript {0}
+
       # Restore R environment from renv.lock file
       - name: Restore renv environment
         run: |
           renv::restore()
         shell: Rscript {0}
+
+      # Install Rcpp directly first with specific options
+      - name: Install Rcpp
+        run: |
+          options(repos = c(CRAN = "https://cloud.r-project.org"))
+          install.packages("Rcpp", type = "source", quiet = FALSE)
+        shell: Rscript {0}
+
       # Install additional R packages
       - name: Install additional R packages
         run: |
@@ -85,13 +96,14 @@ jobs:
           renv::install("atrrr")
           # Ensure Rcpp is already installed before tidyRSS
           if (!requireNamespace("Rcpp", quietly = TRUE)) {
-            install.packages("Rcpp", type = "binary")
+            install.packages("Rcpp", type = "source")
           }
           renv::install("tidyRSS")
           renv::snapshot()
         shell: Rscript {0}
         env:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
       # Run the bot script
       - name: Run bot
         run: |
@@ -104,6 +116,7 @@ jobs:
         shell: Rscript {0}
         env:
           ATR_PW: ${{ secrets.ATR_PW }}
+
       # Upload logs if the job fails
       - name: Upload logs
         uses: actions/upload-artifact@v4
