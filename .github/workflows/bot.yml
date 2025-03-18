@@ -64,8 +64,7 @@ jobs:
         if: steps.cache-sys-deps.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
-          sudo apt-get install -y g++ gcc
+          sudo apt-get install -y libcurl4-openssl-dev
           mkdir -p ~/.apt-cache
           sudo cp /var/cache/apt/archives/*.deb ~/.apt-cache/
 
@@ -74,8 +73,7 @@ jobs:
         if: steps.cache-sys-deps.outputs.cache-hit == 'true'
         run: |
           sudo cp ~/.apt-cache/*.deb /var/cache/apt/archives/
-          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
-          sudo apt-get install -y g++ gcc
+          sudo apt-get install -y libcurl4-openssl-dev
 
       # Restore R environment from renv.lock file
       - name: Restore renv environment
@@ -87,7 +85,7 @@ jobs:
       - name: Install additional R packages
         run: |
           Sys.setenv(GITHUB_PAT = "${{ secrets.GITHUB_TOKEN }}")
-          renv::install(c("jsonlite", "dplyr", "atrrr","tidyRSS","anytime","lubridate","stringr","glue","purrr","xml2"))
+          renv::install(c("jsonlite", "dplyr", "atrrr", "tidyRSS"))
           renv::snapshot()
         shell: Rscript {0}
         env:
