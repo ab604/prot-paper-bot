@@ -22,9 +22,9 @@ jobs:
           fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: gautamkrishnar/keepalive-workflow@v2 # using the workflow with default settings
-        with:
-          use_api: false
+      #- uses: gautamkrishnar/keepalive-workflow@v2 # using the workflow with default settings
+      #  with:
+      #    use_api: false
 
       # Set up R environment
       - name: Set up R
