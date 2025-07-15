@@ -93,7 +93,7 @@ jobs:
           # Install packages individually to better handle failures
           renv::install("jsonlite")
           renv::install("dplyr")
-          renv::install("atrrr")
+          renv::install("JBGruber/atrrr")  # Install latest from GitHub
           # Ensure Rcpp is already installed before tidyRSS
           if (!requireNamespace("Rcpp", quietly = TRUE)) {
             install.packages("Rcpp", type = "source")
