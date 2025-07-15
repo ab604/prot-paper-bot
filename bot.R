@@ -80,10 +80,13 @@ posts <- rss_posts |>
          timestamp = now()) # Add timestamp
 
 ## Part 3: get already posted updates and de-duplicate
-# Authenticate
+# Use the current atrrr authentication
 pw <- Sys.getenv("ATR_PW")
-auth <- auth_server("bsky.social")
-auth_log_in(auth, identifier = "protpapers.bsky.social", password = pw)
+
+# This is the correct current syntax
+auth(user = "protpapers.bsky.social",
+     password = pw,
+     overwrite = TRUE)
 
 # Check for existing posts
 old_posts <- get_skeets_authored_by("protpapers.bsky.social", limit = 5000L)
@@ -95,12 +98,18 @@ posts_new <- posts |>
 # Post skeets
 for (i in seq_len(nrow(posts_new))) {
   resp <- try(post_skeet(text = posts_new$post_text[i],
+                        created_at = posts_new$timestamp[i], 
                         preview_card = FALSE))
   
   if (inherits(resp, "try-error")) {
-    cat("Error posting:", resp, "\n")
-  } else {
-    cat("Successfully posted:", substr(posts_new$post_text[i], 1, 50), "...\n")
+    # Try without timestamp if first attempt fails
+    resp2 <- try(post_skeet(text = posts_new$post_text[i],
+                           preview_card = FALSE))
+    
+    if (inherits(resp2, "try-error")) {
+      cat("Failed to post:", substr(posts_new$post_text[i], 1, 100), "\n")
+      cat("Error:", resp2, "\n")
+    }
   }
   
   Sys.sleep(1)  # Brief pause between posts
