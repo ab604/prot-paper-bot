@@ -80,25 +80,28 @@ posts <- rss_posts |>
          timestamp = now()) # Add timestamp
 
 ## Part 3: get already posted updates and de-duplicate
-Sys.setenv(BSKY_TOKEN = "papers_token.rds")
+# Authenticate
 pw <- Sys.getenv("ATR_PW")
-
-auth(user = "protpapers.bsky.social",
-     password = pw,
-     overwrite = TRUE)
+auth <- auth_server("bsky.social")
+auth_log_in(auth, identifier = "protpapers.bsky.social", password = pw)
 
 # Check for existing posts
 old_posts <- get_skeets_authored_by("protpapers.bsky.social", limit = 5000L)
+
 # Filter to post only new stuff
 posts_new <- posts |>
   filter(!post_text %in% old_posts$text)
 
-## Part 4: Post skeets. preview_card = FALSE means no images.
+# Post skeets
 for (i in seq_len(nrow(posts_new))) {
-  # if people upload broken preview images, this fails
   resp <- try(post_skeet(text = posts_new$post_text[i],
-                         created_at = posts_new$timestamp[i], preview_card = FALSE))
-  if (methods::is(resp, "try-error")) post_skeet(text = posts_new$post_text[i],
-                                                 created_at = posts_new$timestamp[i],
-                                                 preview_card = FALSE)
+                        preview_card = FALSE))
+  
+  if (inherits(resp, "try-error")) {
+    cat("Error posting:", resp, "\n")
+  } else {
+    cat("Successfully posted:", substr(posts_new$post_text[i], 1, 50), "...\n")
+  }
+  
+  Sys.sleep(1)  # Brief pause between posts
 }
